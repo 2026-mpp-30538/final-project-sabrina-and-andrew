@@ -184,13 +184,8 @@ crime_all = crime_all[crime_all['Year'] <= 2012]
 crime_all = crime_all[crime_all['Year'] >= 2005]
 
 #merge into crime dataset
-crime = crime_all.merge(pop_long, how='left', 
-                        on=['State', 'County', 'Year'],
-                        indicator=True)
-
-print(crime['_merge'].value_counts())
-crime[crime['_merge'] == 'left_only'][['State','County','Year']].head(20)
-
+crime = crime_all.merge(pop_long, how='inner', 
+                        on=['State', 'County', 'Year'], indicator=True)
 
 #create crime rates 
 crime['Total crime'] = crime['Violent crime'] + crime['Property crime'] 
@@ -201,7 +196,7 @@ crime_col = ['Total crime', 'Violent crime','Murder and nonnegligent manslaughte
 for c in crime_col:
     crime[f'{c}_rate'] = crime[c] / (crime['Population'] / 100000)
 
-crime = crime.drop(columns=['County Type', '_merge'], errors='ignore')
+crime = crime.drop(columns=['County Type', '_merge', 'Year'], errors='ignore')
 #groupby to find averages
 crime_by_county = crime.groupby(['State', 'County']).mean().reset_index()
 
