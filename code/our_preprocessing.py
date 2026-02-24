@@ -1,6 +1,14 @@
 import os
 import pandas as pd
 import numpy as np
+import pyreadstat
+import geopandas as gpd
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent.parent
+BASE_DIR
+
+os.chdir(BASE_DIR)
 
 # Here we will being to pull in and clean crime data to eventually merge with the main Chetty-Hendren Data
 #directory = 'c:/Users/s_bea/student30538-w26/final-project-sabrina-and-andrew/'
@@ -201,3 +209,100 @@ crime_by_county = crime.groupby(['State', 'County']).mean().reset_index()
 output_path = f'data/derived_data/crime_by_county.csv'
 crime_by_county.to_csv(output_path, index=False)
 
+#### QCEW DATA ####
+
+years = list(range(2005, 2013))
+
+dataframes = {}
+
+#read in relevant years in a loop and concatenate
+for year in years:
+
+    suffix = f'{year % 100:02d}'
+    filename = os.path.join('data\QCEW Files (Raw)', f'allhlcn{suffix}.xlsx')
+
+    if os.path.exists(filename):
+        print(f'Reading in file for {year}')
+
+        data = pd.read_excel(filename, sheet_name=0)
+        dataframes[year] = data
+    else:
+        print(f'File not found for year {year}')
+        pass
+
+merged_df = pd.concat(dataframes.values(), ignore_index=True)
+
+#pull out relevant variables for aggregation
+subset_df = merged_df[['Area\nCode', 'Area Type', 'Ownership', 'Industry', 'Annual Average Employment', 'Annual Total Wages']]
+
+#we want average industry concentration across our years, so sum raw numbers
+grouped_df = subset_df.groupby(['Area\nCode', 'Area Type', 'Ownership', 'Industry'], as_index=False).sum()
+
+#calculate national share for each industry
+national = grouped_df[grouped_df['Area\nCode'] == 'US000']
+national_total = national[national['Ownership'] == 'Total Covered']
+
+national['Total National Employment'] = national_total.loc[63596, 'Annual Average Employment']
+national['Total National Wages'] = national_total.loc[63596, 'Annual Total Wages']
+
+national['National Employment Share'] = national['Annual Average Employment'] / national['Total National Employment']
+national['National Wage Share'] = national['Annual Average Employment'] / national['Total National Employment']
+
+#drop irrelevant columns
+national = national[['Ownership', 'Industry', 'National Employment Share', 'National Wage Share']]
+
+#compute share for counties with the same process
+county = grouped_df[grouped_df['Area Type'] == 'County']
+county_total = county[county['Ownership'] == 'Total Covered']
+
+county_total = county_total.rename(columns={
+    'Annual Average Employment': 'Total County Employment',
+    'Annual Total Wages': 'Total County Wages'})
+
+county_total = county_total.drop(columns=['Area Type', 'Ownership', 'Industry'])
+county = county.merge(county_total, on='Area\nCode', how='left')
+
+county['Local Employment Share'] = county['Annual Average Employment'] / county['Total County Employment']
+county['Local Wage Share'] = county['Annual Total Wages'] / county['Total County Wages']
+
+#add national concentration for each industry as a column
+qcew = county.merge(national, how='left', on=['Ownership', 'Industry'])
+
+#calculate our location quotients
+qcew['Employment Location Quotient'] = qcew['Local Employment Share'] / qcew['National Employment Share']
+qcew['Wage Location Quotient'] = qcew['Local Wage Share'] / qcew['National Wage Share']
+
+#rename our county FIPS and drop irrelevant columns
+qcew = qcew.rename(columns={
+    'Area\nCode': 'countyfips'
+}).drop(columns=[
+    'Local Employment Share', 'Local Wage Share',
+    'National Employment Share', 'National Wage Share'
+])
+
+#write to csv for clean dataset (but will be merged)
+qcew.to_csv('QCEW Data (aggregated).csv', index=False)
+
+#### CH DATA, COUNTY SHAPEFILE ####
+
+#read in CH data, adjust countyfips column
+ch_data = pd.read_csv(r'data\chetty_hendren_causal_county_cleaned.csv', encoding='latin-1')
+ch_data['County FIPS 2000'] = ch_data['County FIPS 2000'].astype('string')
+ch_data['County FIPS 2000'] = ch_data['County FIPS 2000'].str.pad(width=5, side='left', fillchar='0')
+
+#read in countymap, exclude Alaska for visualization purposes
+county_map = gpd.read_file(os.path.join('data\Shapefiles\County\co99_d00.shp'))
+county_map = county_map[county_map['STATE'] != '02']
+
+#counstruct countyfips
+county_map['GEOID'] = (
+    county_map['STATE']
+    .astype(str)
+    .str.pad(width=2, side='left', fillchar='0') + 
+    county_map['COUNTY']
+    .astype(str).str.pad(width=3, side='left', fillchar='0')
+)
+
+ch_shape = county_map.merge(ch_data, right_on='County FIPS 2000', left_on='GEOID', how='right')
+
+ch_shape = gpd.GeoDataFrame(ch_shape, geometry='geometry')
