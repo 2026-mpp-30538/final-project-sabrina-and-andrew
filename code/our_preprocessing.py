@@ -3,69 +3,69 @@ import pandas as pd
 import numpy as np
 
 # Here we will being to pull in and clean crime data to eventually merge with the main Chetty-Hendren Data
-directory = 'c:/Users/s_bea/student30538-w26/final-project-sabrina-and-andrew/data'
-file_path = '/crime_data/FBI_Crime_Data'
+#directory = 'c:/Users/s_bea/student30538-w26/final-project-sabrina-and-andrew/'
+file_path = 'data/crime_data/FBI_Crime_Data'
 
 #importing all my data files and adding year column
-crime_2024 = pd.read_excel(f'{directory}{file_path}/2024.xlsx',
+crime_2024 = pd.read_excel(f'{file_path}/2024.xlsx',
                             skiprows=4, skipfooter=2)
 crime_2024["Year"] = 2024
-crime_2023 = pd.read_excel(f'{directory}{file_path}/2023.xlsx',
+crime_2023 = pd.read_excel(f'{file_path}/2023.xlsx',
                             skiprows=4, skipfooter=2, index_col=[0]).reset_index()
 crime_2023["Year"] = 2023
-crime_2022 = pd.read_excel(f'{directory}{file_path}/2022.xlsx',
+crime_2022 = pd.read_excel(f'{file_path}/2022.xlsx',
                             skiprows=4, skipfooter=2, index_col=[0]).reset_index()
 crime_2022["Year"] = 2022
-crime_2021 = pd.read_excel(f'{directory}{file_path}/2021.xlsx',
+crime_2021 = pd.read_excel(f'{file_path}/2021.xlsx',
                             skiprows=4, skipfooter=1, index_col=[0]).reset_index()
 crime_2021["Year"] = 2021
-crime_2020 = pd.read_excel(f'{directory}{file_path}/2020.xlsx',
+crime_2020 = pd.read_excel(f'{file_path}/2020.xlsx',
                             skiprows=6, skipfooter=9, index_col=[0]).reset_index()
 crime_2020["Year"] = 2020
 # for files 2019 and before, these are xls, so user will need to install xlrd in terminal
-crime_2019 = pd.read_excel(f'{directory}{file_path}/2019.xls',
+crime_2019 = pd.read_excel(f'{file_path}/2019.xls',
                             skiprows=4, skipfooter=8, index_col=[0]).reset_index() 
 crime_2019["Year"] = 2019
-crime_2018 = pd.read_excel(f'{directory}{file_path}/2018.xls',
+crime_2018 = pd.read_excel(f'{file_path}/2018.xls',
                             skiprows=4, skipfooter=8, index_col=[0]).reset_index()
 crime_2018["Year"] = 2018 
-crime_2017 = pd.read_excel(f'{directory}{file_path}/2017.xls',
+crime_2017 = pd.read_excel(f'{file_path}/2017.xls',
                             skiprows=4, skipfooter=7, index_col=[0]).reset_index() 
 crime_2017["Year"] = 2017 
-crime_2016 = pd.read_excel(f'{directory}{file_path}/2016.xls',
+crime_2016 = pd.read_excel(f'{file_path}/2016.xls',
                             skiprows=4, skipfooter=9, index_col=[0]).reset_index() 
 crime_2016["Year"] = 2016
-crime_2015 = pd.read_excel(f'{directory}{file_path}/2015.xls',
+crime_2015 = pd.read_excel(f'{file_path}/2015.xls',
                             skiprows=4, skipfooter=8, index_col=[0]).reset_index()
 crime_2015["Year"] = 2015 
-crime_2014 = pd.read_excel(f'{directory}{file_path}/2014.xls',
+crime_2014 = pd.read_excel(f'{file_path}/2014.xls',
                             skiprows=4, skipfooter=8, index_col=[0]).reset_index()
 crime_2014["Year"] = 2014
-crime_2013 = pd.read_excel(f'{directory}{file_path}/2013.xls',
+crime_2013 = pd.read_excel(f'{file_path}/2013.xls',
                             skiprows=4, skipfooter=7, index_col=[0]).reset_index() 
 crime_2013["Year"] = 2013
-crime_2012 = pd.read_excel(f'{directory}{file_path}/2012.xls',
+crime_2012 = pd.read_excel(f'{file_path}/2012.xls',
                             skiprows=4, skipfooter=7, index_col=[0]).reset_index() 
 crime_2012["Year"] = 2012 
-crime_2011 = pd.read_excel(f'{directory}{file_path}/2011.xls',
+crime_2011 = pd.read_excel(f'{file_path}/2011.xls',
                             skiprows=4, skipfooter=7, index_col=[0]).reset_index() 
 crime_2011["Year"] = 2011
-crime_2010 = pd.read_excel(f'{directory}{file_path}/2010.xls',
+crime_2010 = pd.read_excel(f'{file_path}/2010.xls',
                             skiprows=4, skipfooter=7, index_col=[0]).reset_index()
 crime_2010["Year"] = 2010 
-crime_2009 = pd.read_excel(f'{directory}{file_path}/2009.xls',
+crime_2009 = pd.read_excel(f'{file_path}/2009.xls',
                             skiprows=4, skipfooter=7, index_col=[0]).reset_index()
 crime_2009["Year"] = 2009 
-crime_2008 = pd.read_excel(f'{directory}{file_path}/2008.xls',
+crime_2008 = pd.read_excel(f'{file_path}/2008.xls',
                             skiprows=4, skipfooter=7, index_col=[0]).reset_index()
 crime_2008["Year"] = 2008
-crime_2007 = pd.read_excel(f'{directory}{file_path}/2007.xls',
+crime_2007 = pd.read_excel(f'{file_path}/2007.xls',
                             skiprows=4, skipfooter=7, index_col=[0]).reset_index()
 crime_2007["Year"] = 2007
-crime_2006 = pd.read_excel(f'{directory}{file_path}/2006.xls',
+crime_2006 = pd.read_excel(f'{file_path}/2006.xls',
                             skiprows=4, skipfooter=8, index_col=[0]).reset_index() 
 crime_2006["Year"] = 2006
-crime_2005 = pd.read_excel(f'{directory}{file_path}/2005.xls',
+crime_2005 = pd.read_excel(f'{file_path}/2005.xls',
                             skiprows=4, skipfooter=8, index_col=[0]).reset_index() 
 crime_2005["Year"] = 2005
 
@@ -90,6 +90,7 @@ for s in all_sheets:
                        'Forcible  rape': 'Rape', 'Violent  Crime': 'Violent crime', 
                        'Property  Crime': 'Property crime'}, inplace=True)
     #some states and counties have footnotes at the end that will mean that they won't merge correctly
+    s['County'] = s['County'].str.rstrip()
     s['County'] = s['County'].str.replace(r'\s*\d+$', '', regex=True)
     s['State'] = s['State'].str.replace(r'\s*\d+$', '', regex=True)
     #make state titlecase
@@ -122,7 +123,81 @@ crime_2008.drop(columns=['Unnamed: 12'], inplace=True)
 # now we concatinate our list of dfs
 crime_all = pd.concat(all_sheets, ignore_index=True)
 
-#write out to derived data folder
-output_path = f'{directory}/derived_data/crime_all.csv'
-crime_all.to_csv(output_path, index=False)
+#next so that crime numbers are comparable, we want to scale those by population data. 
+#since we don't have numbers for 2011 and 2012 we will use 2010 data for these years. 
+pop = pd.read_csv(f'/data/Pop_data.csv', encoding='latin1')
+pop.head()
+
+# will need to strip county from CTYNAME and will strinp crime just in case
+pop['CTYNAME'] = pop['CTYNAME'].str.replace(r" County$", "", regex=True)
+
+#need to rename columns for year and pivot data longer
+pop.rename(columns={'POPESTIMATE2000': '2000', 'POPESTIMATE2001': '2001',
+                    'POPESTIMATE2002': '2002', 'POPESTIMATE2003': '2003',
+                    'POPESTIMATE2004': '2004', 'POPESTIMATE2005': '2005',
+                    'POPESTIMATE2006': '2006', 'POPESTIMATE2007': '2007',
+                    'POPESTIMATE2008': '2008', 'POPESTIMATE2009': '2009',
+                    'POPESTIMATE2010': '2010'}, inplace=True)
+
+#impute 2011 and 2012
+pop['2011'] = pop['2010']
+pop['2012'] = pop['2010']
+pop = pop.drop(columns=['CENSUS2010POP', 'ESTIMATESBASE2000', 
+                  'COUNTY', 'STATE', 'DIVISION', 'REGION', 'SUMLEV'])
+pop_long = pd.melt(pop, ["STNAME", "CTYNAME"])
+
+# more regex unfortunately
+pop_long['variable'] = pd.to_numeric(pop_long['variable'], errors='coerce').astype('int64')
+crime_all['Year'] = pd.to_numeric(crime_all['Year'], errors='coerce').astype('int64')
+pop_long = pop_long.rename(columns={'value': 'Population', 'variable':'Year',
+                                    'STNAME': 'State', 'CTYNAME':'County'})
+
+pop_long['County'] = pop_long['County'].str.replace(r' Parish', '', regex=True)
+pop_long['County'] = pop_long['County'].str.replace(r' city', '', regex=True)
+pop_long['County'] = pop_long['County'].str.replace(r' City and Borough', '', regex=True)
+pop_long['County'] = pop_long['County'].str.replace(r' Borough', '', regex=True)
+pop_long['County'] = pop_long['County'].str.replace(r' Census Area', '', regex=True)
+pop_long['County'] = pop_long['County'].str.replace(r' Municipality', '', regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r" County$", "", regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r' County Police Department', '', regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r' County Bureau of Police', '', regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r' Public Safety', '', regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r' Police Department', '', regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r'\s*\d+$', '', regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r' Unified Police Department', '', regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r" Sheriff's Office", '', regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r"\d+,", "", regex=True)
+crime_all['County'] = crime_all['County'].str.replace(r" County Unified", "", regex=True)
+replace_map = {'Dona Ana': 'Doña Ana', 'Du Page': 'DuPage', 'Lac Qui Parle':'Lac qui Parle',
+               'La Porte': 'LaPorte', 'Lamoure': 'LaMoure'}
+crime_all['County'] = crime_all['County'].replace(replace_map)
+
+crime_all = crime_all[crime_all['Year'] <= 2012]
+crime_all = crime_all[crime_all['Year'] >= 2005]
+
+#merge into crime dataset
+crime = crime_all.merge(pop_long, how='left', 
+                        on=['State', 'County', 'Year'],
+                        indicator=True)
+
+print(crime['_merge'].value_counts())
+crime[crime['_merge'] == 'left_only'][['State','County','Year']].head(20)
+
+
+#create crime rates 
+crime['Total crime'] = crime['Violent crime'] + crime['Property crime'] 
+
+crime_col = ['Total crime', 'Violent crime','Murder and nonnegligent manslaughter', 'Rape',
+              'Robbery','Aggravated assault', 'Property crime', 'Burglary', 
+              'Larceny-theft','Motor vehicle theft', 'Arson']
+for c in crime_col:
+    crime[f'{c}_rate'] = crime[c] / (crime['Population'] / 100000)
+
+crime = crime.drop(columns=['County Type', '_merge'], errors='ignore')
+#groupby to find averages
+crime_by_county = crime.groupby(['State', 'County']).mean().reset_index()
+
+#and write out clean dataset
+output_path = f'data/derived_data/crime_by_county.csv'
+crime_by_county.to_csv(output_path, index=False)
 
