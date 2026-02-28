@@ -196,13 +196,34 @@ crime_col = ['Total crime', 'Violent crime','Murder and nonnegligent manslaughte
 for c in crime_col:
     crime[f'{c}_rate'] = crime[c] / (crime['Population'] / 100000)
 
-crime = crime.drop(columns=['County Type', '_merge', 'Year'], errors='ignore')
+crime = crime.drop(columns=['County Type', '_merge'], errors='ignore')
 #groupby to find averages
 crime_by_county = crime.groupby(['State', 'County']).mean().reset_index()
 
 #and write out clean dataset
 output_path = f'data/derived_data/crime_by_county.csv'
 crime_by_county.to_csv(output_path, index=False)
+
+#add in county FIPS codes to crime data with a crosswalk
+countyfips = pd.read_csv('data\countyfips crosswalk.csv')
+countyfips = countyfips[['state_name', 'county', 'countyfips']]
+
+#omit "County" from the end of each county name for matching
+countyfips['county'] = countyfips['county'].str.replace(' County', '', regex=False)
+
+#omit "Parish" as well so that Louisiana matches:
+countyfips['county'] = countyfips['county'].str.replace(' Parish', '', regex=False)
+
+#in crime data, rename Dona Ana, NM to have no tilde:
+crime_by_county.loc[1435, 'County'] = 'Dona Ana'
+
+crime_by_county = crime_by_county.merge(countyfips, 
+                                        left_on=['State', 'County'],
+                                        right_on=['state_name', 'county'],
+                                        how='left',
+                                        indicator=True)
+
+assert len(crime_by_county[crime_by_county['_merge'] != 'both']) == 0
 
 #### QCEW DATA ####
 
@@ -276,7 +297,7 @@ qcew = qcew.rename(columns={
 ])
 
 #write to csv for clean dataset (but will be merged)
-qcew.to_csv('QCEW Data (aggregated).csv', index=False)
+qcew.to_csv('data/derived_data/QCEW Data (aggregated).csv', index=False)
 
 #### CH DATA, COUNTY SHAPEFILE ####
 
@@ -284,6 +305,46 @@ qcew.to_csv('QCEW Data (aggregated).csv', index=False)
 ch_data = pd.read_csv(r'data\chetty_hendren_causal_county_cleaned.csv', encoding='latin-1')
 ch_data['County FIPS 2000'] = ch_data['County FIPS 2000'].astype('string')
 ch_data['County FIPS 2000'] = ch_data['County FIPS 2000'].str.pad(width=5, side='left', fillchar='0')
+
+#merge with qcew
+ch_qcew = ch_data.merge(qcew,
+                     how='left',
+                     left_on='County FIPS 2000',
+                     right_on='countyfips',
+                     indicator=True)
+
+print(ch_qcew[ch_qcew['_merge'] != 'both']['County Name'])
+
+#Clifton Forge City is under 3500 people, and QCEW data does not contain information for 
+#counties this small in public data for confidentiality. As it's a single county that doesn't
+#match, drop.
+
+ch_qcew = ch_qcew[ch_qcew['_merge'] == 'both']
+
+ch_qcew = ch_qcew.drop('_merge', axis=1)
+
+# merge with crime data. here, use an inner join - the Chetty Hendren data has more counties 
+# than the FBI's crime data, although a test merge shows about 1000 non-matching counties between
+# the two datasets. CH is limited by counties with enough movers, and the FBI is limited by which
+# counties voluntarily report. We'll use matching counties, as we still get a large sample of 2353.
+
+crime_by_county['countyfips'] = crime_by_county['countyfips'].astype(str)
+crime_by_county = crime_by_county.drop('_merge', axis=1)
+
+full_data = ch_qcew.merge(crime_by_county,
+                     how='inner',
+                     left_on='County FIPS 2000',
+                     right_on='countyfips',
+                     indicator=True)
+
+
+#drop extraneous columns
+full_data = full_data.drop(
+    ['_merge', 'countyfips_y', 'State_y', 'countyfips_x', 'State_x', 'County', 'county'],
+    axis=1
+    )
+
+full_data.to_csv('data\derived_data\Full Data.csv')
 
 #read in countymap, exclude Alaska for visualization purposes
 county_map = gpd.read_file(os.path.join('data\Shapefiles\County\co99_d00.shp'))
@@ -298,6 +359,8 @@ county_map['GEOID'] = (
     .astype(str).str.pad(width=3, side='left', fillchar='0')
 )
 
-ch_shape = county_map.merge(ch_data, right_on='County FIPS 2000', left_on='GEOID', how='right')
+shape_full = county_map.merge(full_data, right_on='County FIPS 2000', left_on='GEOID', how='right')
 
-ch_shape = gpd.GeoDataFrame(ch_shape, geometry='geometry')
+shape_full = gpd.GeoDataFrame(shape_full, geometry='geometry')
+
+shape_full.to_file('data\derived_data\Full Data with Geography.gpkg', driver='GPKG')
