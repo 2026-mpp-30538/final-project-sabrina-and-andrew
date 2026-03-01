@@ -11,7 +11,6 @@ BASE_DIR
 os.chdir(BASE_DIR)
 
 # Here we will being to pull in and clean crime data to eventually merge with the main Chetty-Hendren Data
-#directory = 'c:/Users/s_bea/student30538-w26/final-project-sabrina-and-andrew/'
 file_path = 'data/crime_data/FBI_Crime_Data'
 
 #importing all my data files and adding year column
